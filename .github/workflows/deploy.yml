@@ -1,0 +1,34 @@
+name: Node Server CI
+on:
+ push:
+   branches:
+    - main
+jobs:
+
+   deploy:
+     runs-on: ubuntu-latest
+     steps:
+       - name: SSH and deploy node app
+         uses: appleboy/ssh-action@master
+         with:
+            host: ${{ secrets.REMOTE_HOST }}
+            username: ${{ secrets.REMOTE_USERNAME }}
+            key: ${{ secrets.REMOTE_SSH_KEY }}
+            port: ${{ secrets.PORT }}
+            script: |
+
+                cd ~/node-server
+
+                git pull origin 
+
+                sudo docker stop node_server_container
+
+                sudo docker rm node_server_container
+
+                sudo docker rmi node_server_image
+
+                sudo docker system prune -af
+
+                sudo docker-compose build
+
+                sudo docker-compose up -d
